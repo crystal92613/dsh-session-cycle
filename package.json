@@ -1,0 +1,51 @@
+{
+  "name": "dsh-session-cycle",
+  "version": "0.6.6",
+  "description": "上下文到阈值时写交接、切换新会话，并同步替换配置文件中记录的会话 id；附带旧会话读取工具与设置页。",
+  "type": "module",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./client": "./lib/client.js"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crystal92613/dsh-session-cycle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/crystal92613/dsh-session-cycle/issues"
+  },
+  "homepage": "https://github.com/crystal92613/dsh-session-cycle#readme",
+  "keywords": [
+    "dsh-plugin",
+    "dshapp-plugin",
+    "deepseek-harness",
+    "session",
+    "context",
+    "rotate",
+    "handoff"
+  ],
+  "author": "crystal92613",
+  "engines": {
+    "node": ">=18"
+  }
+}
