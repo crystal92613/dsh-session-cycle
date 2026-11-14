@@ -84,7 +84,7 @@ dsh plugin --profile desktop add dsh-session-cycle
 ## 工具
 
 - `session_recall({ sessionId?, limit? })`：读旧会话的对话原文（`sessions` 与 `archived-sessions` 都会找）。不传 id 读最近一次轮换掉的会话；
-- `session_cycle({ action: "status" | "rotate" })`：看阈值、当前会话、bindings、清理状态；`rotate` 立刻走一次轮换。
+- `session_cycle({ action: "status" | "rotate" })`：看阈值、当前会话、bindings、清理状态；`rotate` 立刻走一次轮换。注意 `rotate` 只对 `watchSessionIds` 里勾选的会话生效，没勾的会话即使发出了交接请求也不会被处理。
 
 ## 注意事项
 
@@ -94,3 +94,10 @@ dsh plugin --profile desktop add dsh-session-cycle
 - 旧会话归档后仍可用 `session_recall` 读；只有清理逻辑真的删除文件后才会读不到；
 - 插件改的是其它插件的配置文件，改前会留 `.bak-cycle-*`，出问题可以据此回滚；
 - 设置页的会话列表按需加载（可能几秒，取决于会话文件大小），解析结果按文件 mtime+size 缓存；运行中新增会话请点「刷新列表」。
+
+## 更新记录
+
+- **v0.8.7**：轮换时继承旧会话的推理等级——读旧会话最后一条 `model/selection` 的 `reasoningEffort`，让新会话沿用；
+- **v0.8.6**：交接注入自动带上旧会话 id（模板里可用 `{oldSessionId}` 占位），新会话要看原文不用再查历史；
+- **v0.8.4–0.8.5**：新会话改走宿主 `workspaceRegistry.resolveByPath(cwd).attachSession()` 挂进工作区（过去访问 `ctx.workspaces` 会抛错、退回写 `workspace.json` 又会被宿主内存覆盖，会话会掉出侧栏）；插件加载时自愈补挂掉出工作区的轮换会话；`bindings` 替换改为无条件执行；
+- **v0.8.1–0.8.3**：触发时机改到 `turn/end` + `agent/status idle` 兜底、延迟 2.5 秒，解决会话忙时永远跳过。
