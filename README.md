@@ -20,20 +20,17 @@ DSH 的会话只增不减，聊久了每轮都要重读全部历史。压缩只�
 
 ## 安装
 
-仓库直装（npm 版本暂未发布）：
-
 ```powershell
-dsh plugin --profile desktop add github:crystal92613/dsh-session-cycle
+dsh plugin --profile desktop add dsh-session-cycle
 ```
 
-钉版本：
+或手动：放进 `$DSH_HOME/profiles/<profile>/node_modules/`，并在该 profile 的 `package.json` 里同时加入 `dependencies` 与 `dsh.profile.bundles`，然后重启 DSH。
 
-```powershell
-dsh plugin --profile desktop add github:crystal92613/dsh-session-cycle#vX.Y.Z
+装完检查 `$DSH_HOME/logs/session-cycle.log`，应该有一行：
+
 ```
-
-装完还要把包名加进该 profile 的 `package.json → dsh.profile.bundles`，否则宿主不会加载；改完**重启 DSH**。
-装完检查 `$DSH_HOME/logs/session-cycle.log` 里有没有 `mounted;` 开头的一行。
+[...] mounted v0.6.4; current=<会话 id> threshold=... bindings=2 archive=true
+```
 
 ## 设置页
 
