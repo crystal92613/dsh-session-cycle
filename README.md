@@ -37,8 +37,10 @@ dsh plugin --profile desktop add dsh-session-cycle
 设置 → 会话轮换：
 
 - **会话更换阈值**：百分比，到 `上下文窗口 × 阈值` 时轮换；
+- **生效范围**：列出未归档、有内容的会话，每个一个按钮；**点选只改本地高亮，点「保存」才生效**；一个都不选 = **完全不生效**；运行中新建的会话要点「刷新列表」才会出现；
+- **空闲轮换**：开启时只在会话空闲（`idle`）才触发，忙/跑任务时跳过；
 - **归档会话删除条件**：保留天数、空间上限（MB）、已归档会话保留数；**时间与空间都满足才删**，只超空间只提示；
-- **配置文件（会话 id 挂接）**：「新增文件」打开文件选择框，选中的 json 会参与 id 替换；
+- **配置文件（会话 id 挂接）**：「新增文件」打开系统文件选择框，选中的 json 会参与 id 替换；
 - **交接提示词**：整段可改；末尾的固定格式要求由插件自动追加，页面不显示。
 
 ## 配置
@@ -48,8 +50,8 @@ dsh plugin --profile desktop add dsh-session-cycle
 ```json
 {
   "enabled": true,
-  "workspace": "E:\\dsh-workspace\\default",
-  "peerKey": "",
+  "workspace": "",
+  "currentSessionId": "",
   "contextWindow": 1048576,
   "thresholdRatio": 0.6,
   "cooldownMinutes": 30,
@@ -57,6 +59,8 @@ dsh plugin --profile desktop add dsh-session-cycle
   "model": "deepseek-flash",
   "pendingTimeoutMinutes": 15,
   "archiveOld": true,
+  "onlyWhenIdle": true,
+  "watchSessionIds": [],
   "handoffHeader": "上下文快满了，帮我把这段时间整理成交接备忘。",
   "cleanup": {
     "enabled": true,
@@ -65,15 +69,14 @@ dsh plugin --profile desktop add dsh-session-cycle
     "checkMinutes": 60,
     "keepRecent": 3
   },
-  "bindings": [
-    "qqbot/force-session.json",
-    "storages/heartbeat-random/config.json"
-  ]
+  "bindings": []
 }
 ```
 
 - `contextWindow`：按你用的模型填（默认 1M）。阈值 = `contextWindow × thresholdRatio`；
-- `peerKey` + `bindings` 第一项：很多部署会把外部渠道（QQ 等）的会话 id 写在一个映射文件里；留空则只依赖 `bindings`；
+- `currentSessionId`：只盯一个会话时填它的 id；也可以用 `bindings` 里的映射文件自动解析（旧字段 `peerKey` 仍兼容）；
+- `watchSessionIds`：要监控的会话 id 列表；留空 = 不生效。设置页点选的就是它；
+- `onlyWhenIdle`：只在会话空闲时触发，默认 `true`；
 - `bindings`：相对 `$DSH_HOME` 的路径，或绝对路径；每项必须是 JSON，里面任何**字符串值**等于旧会话 id 都会被替换（写前留 `.bak-cycle-*`）；
 - `handoffHeader`：交接提示词的可编辑部分；
 - `cleanup`：只清理本插件轮换下来、列在历史里的旧会话；最近 `keepRecent` 个永不删，当前会话永不删。
@@ -89,4 +92,5 @@ dsh plugin --profile desktop add dsh-session-cycle
 - 自带的「固定格式要求」不可在设置页查看/修改，避免被改坏导致抓不到正文；
 - 轮换频率越高，单页越便宜，但交接开销占比也越高；一般 30%–60% 比较平衡；
 - 旧会话归档后仍可用 `session_recall` 读；只有清理逻辑真的删除文件后才会读不到；
-- 插件改的是其它插件的配置文件，改前会留 `.bak-cycle-*`，出问题可以据此回滚。
+- 插件改的是其它插件的配置文件，改前会留 `.bak-cycle-*`，出问题可以据此回滚；
+- 设置页的会话列表按需加载（可能几秒，取决于会话文件大小），解析结果按文件 mtime+size 缓存；运行中新增会话请点「刷新列表」。
