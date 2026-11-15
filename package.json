@@ -1,6 +1,6 @@
 {
   "name": "dsh-session-cycle",
-  "version": "0.9.0",
+  "version": "0.9.5",
   "description": "上下文到阈值时写交接、切换新会话，并同步替换配置文件中记录的会话 id；附带旧会话读取工具与设置页。",
   "type": "module",
   "main": "lib/index.js",

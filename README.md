@@ -34,13 +34,10 @@ dsh plugin --profile desktop add dsh-session-cycle
 
 ## 设置页
 
-设置 → 会话管理：
+设置 → 会话管理，四张卡片：
 
-- **会话压缩**：压缩阈值（百分比，`0` = 关闭）与压缩提示词。到阈值时向会话注入一段提醒，让它先把值得留的写进记忆、再决定要不要压；末尾的工具说明由插件自动追加；
-- **会话更换**：更换阈值（百分比，到 `上下文窗口 × 阈值` 时轮换）、生效范围、空闲轮换；
-- **生效范围**：列出未归档、有内容的会话，每个一个按钮；**点选只改本地高亮，点「保存」才生效**；一个都不选 = **完全不生效**；运行中新建的会话要点「刷新列表」才会出现；
-- **空闲轮换**：开启时只在会话空闲（`idle`）才触发，忙/跑任务时跳过；
-- **交接提示词**：整段可改；末尾的固定格式要求由插件自动追加，页面不显示；
+- **生效会话**：列出未归档、有内容的会话，每个一个按钮；**点选只改本地高亮，点「保存」才生效**；一个都不选 = **完全不生效**；运行中新建的会话要点「刷新列表」才会出现；
+- **会话更换**：更换阈值（百分比，到 `上下文窗口 × 阈值` 时轮换）、空闲轮换（只在会话空闲时触发，忙/跑任务时跳过）、交接提示词（整段可改，末尾的固定格式要求由插件自动追加）；
 - **归档会话删除条件**：保留天数、空间上限（MB）、已归档会话保留数；**时间与空间都满足才删**，只超空间只提示；
 - **配置文件（会话 id 挂接）**：「新增文件」打开系统文件选择框，选中的 json 会参与 id 替换。
 
@@ -55,8 +52,6 @@ dsh plugin --profile desktop add dsh-session-cycle
   "currentSessionId": "",
   "contextWindow": 1048576,
   "thresholdRatio": 0.6,
-  "compactRatio": 0.35,
-  "compactHeader": "先把这段时间值得留的写进记忆，再决定要不要压。",
   "cooldownMinutes": 30,
   "provider": "deepseek-account",
   "model": "deepseek-flash",
@@ -82,14 +77,12 @@ dsh plugin --profile desktop add dsh-session-cycle
 - `onlyWhenIdle`：只在会话空闲时触发，默认 `true`；
 - `bindings`：相对 `$DSH_HOME` 的路径，或绝对路径；每项必须是 JSON，里面任何**字符串值**等于旧会话 id 都会被替换（写前留 `.bak-cycle-*`）；
 - `handoffHeader`：交接提示词的可编辑部分；
-- `compactRatio`：压缩提醒阈值（占窗口比例）；`0` = 关闭。建议低于 `thresholdRatio`；
-- `compactHeader`：压缩提醒的可编辑部分；
 - `cleanup`：只清理本插件轮换下来、列在历史里的旧会话；最近 `keepRecent` 个永不删，当前会话永不删。
 
 ## 工具
 
 - `session_recall({ sessionId?, limit? })`：读旧会话的对话原文（`sessions` 与 `archived-sessions` 都会找）。不传 id 读最近一次轮换掉的会话；
-- `session_cycle({ action: "status" | "rotate" | "compact" | "skip" })`：看阈值、当前会话、bindings、清理状态；`rotate` 立刻走一次轮换（只对 `watchSessionIds` 里勾选的会话生效）。`compact` 登记一次压缩，本轮结束后在会话空闲时执行；`skip` 表示这个会话暂不压缩，不再提醒、等换页。
+- `session_cycle({ action: "status" | "rotate" })`：看阈值、当前会话、bindings、清理状态；`rotate` 立刻走一次轮换（只对 `watchSessionIds` 里勾选的会话生效）。
 
 ## 注意事项
 
@@ -102,7 +95,8 @@ dsh plugin --profile desktop add dsh-session-cycle
 
 ## 更新记录
 
-- **v0.9.0**：新增「会话压缩」——到压缩阈值（默认 35%）提醒会话先整理记忆再决定是否压缩。工具新增 `action: "compact"`（登记后本轮结束、会话空闲时再压，避免 `busy`）和 `action: "skip"`（本会话不再提醒，等换页）。设置页改名「会话管理」，压缩阈值与压缩提示词可配；
+- **v0.9.5**：设置页改为「会话管理」四张卡片（生效会话 / 会话更换 / 归档删除条件 / 配置文件），生效范围独立置顶；轮换后的新会话 id 保持标准 UUID；
+- **v0.9.0–0.9.4（已移除）**：试做过「会话压缩」——到阈值提醒会话整理记忆再压缩，工具加 `compact`/`skip`。但压缩服务被隔离在 agent preset 的 compaction group 里，插件级注入拿不到，功能整体移除；
 - **v0.8.10**：轮换生成的新会话 id 改用标准 UUID（`session-<uuid>`），加载时的自愈也改为从状态里记的轮换 id 取候选，不再只认 `session-cycle-` 前缀；
 - **v0.8.8**：轮换后生效范围里的旧会话自动换成新会话，设置页不再残留已归档的选中项；
 - **v0.8.7**：轮换时继承旧会话的推理等级——读旧会话最后一条 `model/selection` 的 `reasoningEffort`，让新会话沿用；
