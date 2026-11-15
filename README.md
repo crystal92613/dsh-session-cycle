@@ -34,14 +34,15 @@ dsh plugin --profile desktop add dsh-session-cycle
 
 ## 设置页
 
-设置 → 会话轮换：
+设置 → 会话管理：
 
-- **会话更换阈值**：百分比，到 `上下文窗口 × 阈值` 时轮换；
+- **会话压缩**：压缩阈值（百分比，`0` = 关闭）与压缩提示词。到阈值时向会话注入一段提醒，让它先把值得留的写进记忆、再决定要不要压；末尾的工具说明由插件自动追加；
+- **会话更换**：更换阈值（百分比，到 `上下文窗口 × 阈值` 时轮换）、生效范围、空闲轮换；
 - **生效范围**：列出未归档、有内容的会话，每个一个按钮；**点选只改本地高亮，点「保存」才生效**；一个都不选 = **完全不生效**；运行中新建的会话要点「刷新列表」才会出现；
 - **空闲轮换**：开启时只在会话空闲（`idle`）才触发，忙/跑任务时跳过；
+- **交接提示词**：整段可改；末尾的固定格式要求由插件自动追加，页面不显示；
 - **归档会话删除条件**：保留天数、空间上限（MB）、已归档会话保留数；**时间与空间都满足才删**，只超空间只提示；
-- **配置文件（会话 id 挂接）**：「新增文件」打开系统文件选择框，选中的 json 会参与 id 替换；
-- **交接提示词**：整段可改；末尾的固定格式要求由插件自动追加，页面不显示。
+- **配置文件（会话 id 挂接）**：「新增文件」打开系统文件选择框，选中的 json 会参与 id 替换。
 
 ## 配置
 
@@ -54,6 +55,8 @@ dsh plugin --profile desktop add dsh-session-cycle
   "currentSessionId": "",
   "contextWindow": 1048576,
   "thresholdRatio": 0.6,
+  "compactRatio": 0.35,
+  "compactHeader": "先把这段时间值得留的写进记忆，再决定要不要压。",
   "cooldownMinutes": 30,
   "provider": "deepseek-account",
   "model": "deepseek-flash",
@@ -79,6 +82,8 @@ dsh plugin --profile desktop add dsh-session-cycle
 - `onlyWhenIdle`：只在会话空闲时触发，默认 `true`；
 - `bindings`：相对 `$DSH_HOME` 的路径，或绝对路径；每项必须是 JSON，里面任何**字符串值**等于旧会话 id 都会被替换（写前留 `.bak-cycle-*`）；
 - `handoffHeader`：交接提示词的可编辑部分；
+- `compactRatio`：压缩提醒阈值（占窗口比例）；`0` = 关闭。建议低于 `thresholdRatio`；
+- `compactHeader`：压缩提醒的可编辑部分；
 - `cleanup`：只清理本插件轮换下来、列在历史里的旧会话；最近 `keepRecent` 个永不删，当前会话永不删。
 
 ## 工具
